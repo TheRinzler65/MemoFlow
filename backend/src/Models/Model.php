@@ -27,7 +27,7 @@ abstract class Model
     {
         $db = self::initDb();
         $stmt = $db->query("SELECT * FROM " . static::$table);
-        $results = $stmt->fetchAll(\PDO::FETCH_CLASS, static::class);
+        $results = $stmt->fetchAll(PDO::FETCH_CLASS, static::class);
 
         if (!$results) {
             return [];

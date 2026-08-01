@@ -63,7 +63,7 @@ class Decks extends Model implements JsonSerializable
         $this->created_at = $newCreatedAt;
     }
 
-    public function setUserId(string $newUserId): void
+    public function setUserId(int $newUserId): void
     {
         $this->user_id = $newUserId;
     }
