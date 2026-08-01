@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Decks;
 use App\Models\Users;
 
 class AdminController
@@ -9,9 +10,16 @@ class AdminController
     public function users()
     {
         $users = Users::findAll();
-        $user = Users::findByEmail("prout@caca.com");
 
         header('Content-Type: application/json');
-        echo json_encode($user->getPassword());
+        echo json_encode($users, JSON_UNESCAPED_UNICODE);
+    }
+
+    public function decks()
+    {
+        $decks = Decks::findAll();
+
+        header('Content-Type: application/json');
+        echo json_encode($decks, JSON_UNESCAPED_UNICODE);
     }
 }

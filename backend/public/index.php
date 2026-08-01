@@ -23,6 +23,7 @@ $routesConfig = [
         'prefix' => '',
         'middlewares' => ['AuthMiddleware'],
         'routes' => [
+            ['GET', '/decks', 'AdminController#decks', 'decks'],
             ['POST', '/log-out', 'AuthController#logout', 'logout'],
         ]
     ],
@@ -57,20 +58,17 @@ $match = $router->match();
 if (is_array($match)) {
     $routeData = $match['target'];
 
-    // 1. Exécution des Middlewares
     if (isset($routeData['middlewares']) && is_array($routeData['middlewares'])) {
         foreach ($routeData['middlewares'] as $middleware) {
             $middlewareClass = "App\\Middlewares\\$middleware";
 
             if (class_exists($middlewareClass)) {
                 $middlewareInstance = new $middlewareClass();
-                // Attention : ton middleware devra lui aussi faire des return JSON et non des redirections header('Location: ...')
                 $middlewareInstance->handle();
             }
         }
     }
 
-    // 2. Exécution du Contrôleur
     [$controller, $action] = explode('#', $routeData['target']);
     $controllerName = "App\\Controllers\\$controller";
 
@@ -78,7 +76,6 @@ if (is_array($match)) {
         $obj = new $controllerName();
 
         if (is_callable([$obj, $action])) {
-            // Toutes les requêtes HTTP de l'API doivent idéalement forcer le header JSON
             header('Content-Type: application/json; charset=utf-8');
             call_user_func_array([$obj, $action], $match['params']);
         } else {
@@ -88,6 +85,5 @@ if (is_array($match)) {
         Error::sendJsonError("Le contrôleur $controllerName n'existe pas", 500);
     }
 } else {
-    // Erreur 404 gérée en JSON
     Error::sendJsonError('Endpoint introuvable', 404);
 }

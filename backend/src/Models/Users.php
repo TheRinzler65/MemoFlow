@@ -2,34 +2,51 @@
 
 namespace App\Models;
 
-class Users extends Model
+use JsonSerializable;
+
+class Users extends Model implements JsonSerializable
 {
 
     protected static string $table = 'users';
 
     private int $id;
+    private string $name;
     private string $email;
     private string $password;
-    private string $username;
+    private string $created_at;
 
-    public function getId()
+    public function jsonSerialize(): array
+    {
+        return [
+            'id'    => $this->id,
+            'name'  => $this->name,
+            'email' => $this->email,
+        ];
+    }
+
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getEmail()
+    public function getEmail(): string
     {
         return $this->email;
     }
 
-    public function getPassword()
+    public function getPassword(): string
     {
         return $this->password;
     }
 
-    public function getUsername(): string
+    public function getName(): string
     {
-        return $this->username;
+        return $this->name;
+    }
+
+    public function getCreatedAt(): string
+    {
+        return $this->created_at;
     }
 
     public function setEmail(string $newEmail): void
@@ -42,9 +59,14 @@ class Users extends Model
         $this->password = $newPassword;
     }
 
-    public function setUsername(string $newUsername): void
+    public function setName(string $newName): void
     {
-        $this->username = $newUsername;
+        $this->name = $newName;
+    }
+
+    public function setCreatedAt(string $newCreatedAt): void
+    {
+        $this->created_at = $newCreatedAt;
     }
 
     public static function findByEmail(string $email): ?Users
