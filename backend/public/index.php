@@ -17,7 +17,7 @@ $routesConfig = [
         'prefix' => '',
         'middlewares' => [],
         'routes' => [
-            ['POST', '/register', 'AuthController#register', 'register'],
+            ['POST', '/register', 'AuthController#register', 'register'], // http://localhost:8000/api/v1/register
             ['POST', '/login', 'AuthController#login', 'login'],
             ['POST', '/logout', 'AuthController#logout', 'logout'],
 
