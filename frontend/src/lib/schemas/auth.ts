@@ -13,6 +13,7 @@ export type LoginSchema = z.infer<typeof loginSchema>
 
 export const registerSchema = z
   .object({
+    name: z.string().min(3, "Le nom doit contenir au moins 3 caractères."),
     email: z
       .email("Veuillez saisir une adresse email valide.")
       .min(1, "L'email est requis."),

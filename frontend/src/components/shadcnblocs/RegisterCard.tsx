@@ -2,17 +2,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import {
-  registerSchema,
-  type RegisterSchema,
-} from "@/lib/schemas/auth"
+import api from "@/lib/api"
+import { registerSchema, type RegisterSchema } from "@/lib/schemas/auth"
 import { cn } from "@/lib/utils"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
 interface SignupProps {
   heading?: string
@@ -43,17 +39,43 @@ const RegisterCard = ({
   signupUrlText = "Se connecter",
   className,
 }: SignupProps) => {
+  const navigate = useNavigate()
+
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   })
 
-  function onSubmit(data: RegisterSchema) {
-    console.log(data)
+  async function onSubmit(data: RegisterSchema) {
+    const safeData = registerSchema.safeParse(data)
+
+    if (!safeData.success) {
+      toast.error("Données invalides")
+      return
+    }
+
+    try {
+      const res = await api.post("/register", {
+        name: safeData.data?.name,
+        email: safeData.data?.email,
+        password: safeData.data?.password,
+        confirm: safeData.data?.confirmPassword,
+      })
+
+      if (res.data.status === "success") {
+        navigate("/sign-in", {
+          replace: true,
+          state: { from: location.pathname, success: "register_success" },
+        })
+      }
+    } catch (error) {
+      toast.error("Something went wrong.")
+    }
   }
 
   return (
@@ -75,6 +97,26 @@ const RegisterCard = ({
             className="flex w-full flex-col items-center gap-y-4 rounded-md border border-muted bg-background px-6 py-8 shadow-md sm:mx-0 sm:w-sm"
           >
             {heading && <h1 className="text-xl font-semibold">{heading}</h1>}
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Nom</FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    placeholder="Jean"
+                    className="text-sm"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
             <Controller
               name="email"
               control={form.control}

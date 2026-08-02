@@ -2,14 +2,12 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import api from "@/lib/api"
 import { loginSchema, type LoginSchema } from "@/lib/schemas/auth"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface LoginProps {
   heading?: string
@@ -49,8 +47,37 @@ const LoginCard = ({
     },
   })
 
-  function onSubmit(data: LoginSchema) {
-    console.log(data)
+  async function onSubmit(data: LoginSchema) {
+    const safeData = loginSchema.safeParse(data)
+
+    if (!safeData.success) {
+      console.log("Erreur")
+      return;
+    }
+
+    try {
+      const res = await api.post("/login", {
+        email: safeData.data?.email,
+        password: safeData.data?.password,
+      })
+
+      if (res.data.status === "success") {
+        toast.success("Vous êtes connecté !")
+      }
+    } catch (error) {
+      toast.error("Something went wrong.")
+    }
+  }
+
+  async function logOut() {
+    try {
+      const res = await api.post("/logout")
+      if (res.data.status === "success") {
+        toast.success("Vous êtes déconnecté !")
+      }
+    } catch (error) {
+      toast.error("Something went wrong.")
+    }
   }
 
   return (
@@ -66,6 +93,7 @@ const LoginCard = ({
               className="h-10 dark:invert"
             />
           </a>
+          <button onClick={logOut}>Logout</button>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             noValidate
@@ -118,12 +146,9 @@ const LoginCard = ({
               {buttonText}
             </Button>
           </form>
-          <div className="flex justify-center gap-1 text-sm text-muted-foreground">
+          <div className="flex justify-center gap-1 text-sm">
             <p>{signupText}</p>
-            <a
-              href={signupUrl}
-              className="font-medium text-primary hover:underline"
-            >
+            <a href={signupUrl} className="font-medium hover:underline">
               {signupUrlText}
             </a>
           </div>
