@@ -17,11 +17,11 @@ class Users extends Model implements JsonSerializable
     private string $password;
     private ?string $created_at;
 
-    public function __construct(string $newName, string $newEmail, string $newPassword)
+    public function __construct(?string $newName = null, ?string $newEmail = null, ?string $newPassword = null)
     {
-        $this->setName($newName);
-        $this->setEmail($newEmail);
-        $this->setPassword($newPassword);
+        if ($newName !== null)     $this->setName($newName);
+        if ($newEmail !== null)    $this->setEmail($newEmail);
+        if ($newPassword !== null) $this->setPassword($newPassword);
     }
 
     public function jsonSerialize(): array

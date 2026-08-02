@@ -8,6 +8,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . "/../");
 $dotenv->safeLoad();
 
+session_start();
+
 $router = new AltoRouter();
 
 
@@ -18,8 +20,8 @@ $routesConfig = [
         'middlewares' => [],
         'routes' => [
             ['POST', '/register', 'AuthController#register', 'register'], // http://localhost:8000/api/v1/register
-            ['POST', '/login', 'AuthController#login', 'login'],
-            ['POST', '/logout', 'AuthController#logout', 'logout'],
+            ['POST', '/login', 'AuthController#login', 'login'], // http://localhost:8000/api/v1/login
+            ['POST', '/logout', 'AuthController#logout', 'logout'], //http://localhost:8000/api/v1/logout
 
         ]
     ],
