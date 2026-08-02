@@ -18,7 +18,9 @@ $routesConfig = [
         'middlewares' => [],
         'routes' => [
             ['POST', '/register', 'AuthController#register', 'register'],
-            // ... Ajouter les routes : Login and Logout
+            ['POST', '/login', 'AuthController#login', 'login'],
+            ['POST', '/logout', 'AuthController#logout', 'logout'],
+
         ]
     ],
     // AUTH DECK
@@ -28,16 +30,30 @@ $routesConfig = [
         'routes' => [
             ['GET', '/', 'DeckController#index', 'get-all-decks'],
             ['GET', '/show/[int:id]', 'DeckController#show', 'get-one-deck'],
+            ['POST', '/create', 'DeckController#create', 'create-deck'],
             ['PUT', '/edit/[int:id]', 'DeckController#edit', 'edit-deck'],
             ['DELETE', '/remove/[int:id]', 'DeckController#remove', 'remove-deck'],
         ]
     ],
+    // AUTH CARD
     [
         'prefix' => '/cards',
         'middlewares' => ['AuthMiddleware'],
         'routes' => [
             ['GET', '/', 'CardController#index', 'get-all-cards'],
-            // ... TODO: Ajouter les routes manquantes
+            ['GET', '/deck/[int:id]', 'CardController#index', 'get-cards-by-deck'],
+            ['POST', '/create', 'CardController#create', 'create-card'],
+            ['PUT', '/edit/[int:id]', 'CardController#edit', 'edit-card'],
+            ['DELETE', '/remove/[int:id]', 'CardController#remove', 'remove-card'],
+        ]
+    ],
+    // AUTH REVIEW
+    [
+        'prefix' => '/reviews',
+        'middlewares' => ['AuthMiddleware'],
+        'routes' => [
+            ['GET', '/today', 'ReviewController#today', 'get-today-reviews'],
+            ['POST', '/[int:id]', 'ReviewController#review', 'submit-review'],
         ]
     ],
     // ADMIN
@@ -45,7 +61,9 @@ $routesConfig = [
         'prefix' => '/admin',
         'middlewares' => ['AuthMiddleware', 'AdminMiddleware'],
         'routes' => [
-            ['GET', '/users', 'AdminController#users', 'users'],
+            ['GET', '/', 'UserController#index', 'get-all-users'],
+            ['GET', '/show[int:id]', 'UserController#show', 'get-one-user'],
+            ['PUT', '/edit[int:id]', 'UserController#edit', 'edit-user'],
         ]
     ]
 ];
