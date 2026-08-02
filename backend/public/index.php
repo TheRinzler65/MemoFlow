@@ -16,15 +16,28 @@ $routesConfig = [
     [
         'prefix' => '',
         'middlewares' => [],
-        'routes' => []
+        'routes' => [
+            ['POST', '/register', 'AuthController#register', 'register'],
+            // ... Ajouter les routes : Login and Logout
+        ]
     ],
-    // AUTH
+    // AUTH DECK
     [
-        'prefix' => '',
+        'prefix' => '/decks',
         'middlewares' => ['AuthMiddleware'],
         'routes' => [
-            ['GET', '/decks', 'AdminController#decks', 'decks'],
-            ['POST', '/log-out', 'AuthController#logout', 'logout'],
+            ['GET', '/', 'DeckController#index', 'get-all-decks'],
+            ['GET', '/show/[int:id]', 'DeckController#show', 'get-one-deck'],
+            ['PUT', '/edit/[int:id]', 'DeckController#edit', 'edit-deck'],
+            ['DELETE', '/remove/[int:id]', 'DeckController#remove', 'remove-deck'],
+        ]
+    ],
+    [
+        'prefix' => '/cards',
+        'middlewares' => ['AuthMiddleware'],
+        'routes' => [
+            ['GET', '/', 'CardController#index', 'get-all-cards'],
+            // ... TODO: Ajouter les routes manquantes
         ]
     ],
     // ADMIN
