@@ -10,15 +10,15 @@ class Decks extends Model implements JsonSerializable
 
     private int $id;
     private string $title;
-    private string $description;
+    private ?string $description;
     private string $created_at;
     private int $user_id;
 
     public function jsonSerialize(): array
     {
         return [
-            'id'    => $this->id,
-            'title'  => $this->title,
+            'id'          => $this->id,
+            'title'       => $this->title,
             'description' => $this->description,
         ];
     }
@@ -33,7 +33,7 @@ class Decks extends Model implements JsonSerializable
         return $this->title;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -53,7 +53,7 @@ class Decks extends Model implements JsonSerializable
         $this->title = $newTitle;
     }
 
-    public function setDescription(string $newDescription): void
+    public function setDescription(?string $newDescription): void
     {
         $this->description = $newDescription;
     }
