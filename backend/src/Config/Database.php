@@ -33,7 +33,7 @@ class Database
         try {
             $this->connection = new PDO($dsn, $user, $pass, $options);
         } catch (PDOException $e) {
-            Error::sendJsonError($e->getMessage(), $e->getCode());
+            Error::sendError($e->getMessage(), $e->getCode());
         }
     }
 
@@ -56,5 +56,4 @@ class Database
     {
         return $this->connection;
     }
-
 }

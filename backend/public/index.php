@@ -110,11 +110,11 @@ if (is_array($match)) {
             header('Content-Type: application/json; charset=utf-8');
             call_user_func_array([$obj, $action], $match['params']);
         } else {
-            Error::sendJsonError("La méthode $action n'existe pas dans $controllerName", 500);
+            Error::sendError("La méthode $action n'existe pas dans $controllerName", 500);
         }
     } else {
-        Error::sendJsonError("Le contrôleur $controllerName n'existe pas", 500);
+        Error::sendError("Le contrôleur $controllerName n'existe pas", 500);
     }
 } else {
-    Error::sendJsonError('Endpoint introuvable', 404);
+    Error::sendError('Endpoint introuvable', 404);
 }
