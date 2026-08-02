@@ -23,18 +23,26 @@ class AuthController extends Controller
 
         $user = new Users($inputs["name"], $inputs["email"], $inputs["password"]);
 
-        $result = $user->insert();
+        try {
+            $result = $user->insert();
 
-        if ($result["status"] === "error") {
-            Error::sendError($result["message"], $result["code"]);
-            return;
+            if ($result["status"] === "error") {
+                Error::sendError($result["message"], $result["code"]);
+                return;
+            }
+
+            Json::send(["status" => "success"], 201);
+        } catch (Exception $e) {
+            Error::sendError($e->getMessage(), $e->getCode());
         }
-
-        Json::send(["status" => "success"], 201);
     }
 
     public function login(): void
     {
+        if (isset($_SESSION["user"])) {
+            Error::sendError("Déjà connecté", 400);
+        }
+
         $body = $this->getBody();
         $rules = [
             'email' => 'required|email',
@@ -51,17 +59,18 @@ class AuthController extends Controller
 
             session_regenerate_id(true);
 
-            $_SESSION['user'] = $user->getId();
-            // $_SESSION['role'] = $user->getRole(); // plus tard
+            $_SESSION['user'] = ["id" => $user->getId(), "email" => $user->getEmail(), "name" => $user->getName()]; // "role" => $user->getRole()
             Json::send(["status" => "success"], 200);
         } catch (Exception $e) {
-            error_log($e->getMessage());
-            Error::sendError("Erreur serveur.", 500);
+            Error::sendError($e->getMessage(), $e->getCode());
         }
     }
 
     public function logout(): void
     {
+        if (!isset($_SESSION["user"])) {
+            Error::sendError("Il faut être connecté pour se déconnecter.", 400);
+        }
         session_destroy();
         Json::send(["status" => "success"], 200);
     }

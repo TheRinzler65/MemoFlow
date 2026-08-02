@@ -17,11 +17,12 @@ class Users extends Model implements JsonSerializable
     private string $password;
     private ?string $created_at;
 
-    public function __construct(?string $newName = null, ?string $newEmail = null, ?string $newPassword = null)
+    public function __construct(string $newName, string $newEmail, string $newPassword, ?int $newId = null)
     {
-        if ($newName !== null)     $this->setName($newName);
-        if ($newEmail !== null)    $this->setEmail($newEmail);
-        if ($newPassword !== null) $this->setPassword($newPassword);
+        $this->id = $newId;
+        $this->setName($newName);
+        $this->setEmail($newEmail);
+        $this->setPassword($newPassword);
     }
 
     public function jsonSerialize(): array
@@ -58,6 +59,11 @@ class Users extends Model implements JsonSerializable
         return $this->created_at;
     }
 
+    public function setId(int $newId): void
+    {
+        $this->id = $newId;
+    }
+
     public function setEmail(string $newEmail): void
     {
         $this->email = $newEmail;
@@ -88,13 +94,15 @@ class Users extends Model implements JsonSerializable
             ':param1' => $email
         ]);
 
-        $result = $stmt->fetchObject(static::class);
+        $result = $stmt->fetch();
 
         if ($result === false) {
             return null;
         }
 
-        return $result;
+        $user = new Users($result["name"], $result["email"], $result["password"], (int)$result["id"]);
+
+        return $user;
     }
 
     public function insert(): array
