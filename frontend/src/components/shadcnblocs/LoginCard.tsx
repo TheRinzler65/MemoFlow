@@ -4,9 +4,11 @@ import { Controller, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/contexts/AuthContext"
 import api from "@/lib/api"
 import { loginSchema, type LoginSchema } from "@/lib/schemas/auth"
 import { cn } from "@/lib/utils"
+import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 interface LoginProps {
@@ -39,6 +41,9 @@ const LoginCard = ({
   signupUrlText = "S'inscrire",
   className,
 }: LoginProps) => {
+  const navigate = useNavigate()
+  const { login } = useAuth()
+
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -62,18 +67,9 @@ const LoginCard = ({
       })
 
       if (res.data.status === "success") {
+        login(res.data.user)
         toast.success("Vous êtes connecté !")
-      }
-    } catch (error) {
-      toast.error("Something went wrong.")
-    }
-  }
-
-  async function logOut() {
-    try {
-      const res = await api.post("/logout")
-      if (res.data.status === "success") {
-        toast.success("Vous êtes déconnecté !")
+        navigate("/dashboard", { replace: true })
       }
     } catch (error) {
       toast.error("Something went wrong.")
@@ -93,7 +89,6 @@ const LoginCard = ({
               className="h-10 dark:invert"
             />
           </a>
-          <button onClick={logOut}>Logout</button>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             noValidate

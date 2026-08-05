@@ -22,6 +22,7 @@ $routesConfig = [
             ['POST', '/register', 'AuthController#register', 'register'], // http://localhost:8000/api/v1/register
             ['POST', '/login', 'AuthController#login', 'login'], // http://localhost:8000/api/v1/login
             ['POST', '/logout', 'AuthController#logout', 'logout'], //http://localhost:8000/api/v1/logout
+            ['GET', '/me', 'AuthController#me', 'me'], // http://localhost:8000/api/v1/me
 
         ]
     ],

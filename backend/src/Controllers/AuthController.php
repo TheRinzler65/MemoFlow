@@ -60,7 +60,7 @@ class AuthController extends Controller
             session_regenerate_id(true);
 
             $_SESSION['user'] = ["id" => $user->getId(), "email" => $user->getEmail(), "name" => $user->getName()]; // "role" => $user->getRole()
-            Json::send(["status" => "success"], 200);
+            Json::send(["status" => "success", "user" => $_SESSION['user']], 200);
         } catch (Exception $e) {
             Error::sendError($e->getMessage(), $e->getCode());
         }
@@ -73,5 +73,17 @@ class AuthController extends Controller
         }
         session_destroy();
         Json::send(["status" => "success"], 200);
+    }
+
+    public function me(): void
+    {
+        if (isset($_SESSION["user"])) {
+            Json::send([
+                "status" => "success",
+                "user" => $_SESSION["user"]
+            ], 200);
+        } else {
+            Error::sendError("Non authentifié", 401);
+        }
     }
 }
