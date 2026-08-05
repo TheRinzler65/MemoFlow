@@ -2,13 +2,32 @@
 
 use Dotenv\Dotenv;
 use App\Helpers\Error;
+use App\Helpers\Session;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . "/../");
 $dotenv->safeLoad();
 
+ini_set('session.gc_maxlifetime', Session::TTL_REMEMBER);
+
+session_set_cookie_params([
+    'lifetime' => Session::TTL,
+    'path' => '/',
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
+
 session_start();
+
+if (isset($_SESSION['user'])) {
+    setcookie(session_name(), session_id(), [
+        'expires' => time() + (Session::remember() ? Session::TTL_REMEMBER : Session::TTL),
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
 
 $router = new AltoRouter();
 
@@ -19,10 +38,10 @@ $routesConfig = [
         'prefix' => '',
         'middlewares' => [],
         'routes' => [
-            ['POST', '/register', 'AuthController#register', 'register'], // http://localhost:8000/api/v1/register
-            ['POST', '/login', 'AuthController#login', 'login'], // http://localhost:8000/api/v1/login
-            ['POST', '/logout', 'AuthController#logout', 'logout'], //http://localhost:8000/api/v1/logout
-            ['GET', '/me', 'AuthController#me', 'me'], // http://localhost:8000/api/v1/me
+            ['POST', '/register', 'AuthController#register', 'register'],
+            ['POST', '/login', 'AuthController#login', 'login'],
+            ['POST', '/logout', 'AuthController#logout', 'logout'],
+            ['GET', '/me', 'AuthController#me', 'me'],
 
         ]
     ],

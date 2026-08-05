@@ -7,6 +7,7 @@ export const loginSchema = z.object({
   password: z
     .string()
     .min(6, "Le mot de passe doit contenir au moins 6 caractères."),
+  remember: z.boolean().optional(),
 })
 
 export type LoginSchema = z.infer<typeof loginSchema>

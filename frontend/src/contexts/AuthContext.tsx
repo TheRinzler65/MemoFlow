@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { api } from '@/lib/api';
 
 export type User = {
@@ -20,22 +20,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const checkAuth = useCallback(async () => {
+        try {
+            const response = await api.get('/me');
+            if (response.data.status === 'success') {
+                setUser(response.data.user);
+            }
+        } catch (error) {
+            setUser(null);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const response = await api.get('/me');
-                if (response.data.status === 'success') {
-                    setUser(response.data.user);
-                }
-            } catch (error) {
-                setUser(null);
-            } finally {
-                setIsLoading(false);
+        checkAuth();
+    }, [checkAuth]);
+
+    // Rafraîchit la session quand l'onglet redevient actif :
+    // l'expiration glisse avec la dernière requête authentifiée, même en navigation SPA
+    useEffect(() => {
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') {
+                checkAuth();
             }
         };
 
-        checkAuth();
-    }, []);
+        document.addEventListener('visibilitychange', handleVisibility);
+
+        return () => document.removeEventListener('visibilitychange', handleVisibility);
+    }, [checkAuth]);
 
     const login = (userData: User) => {
         setUser(userData);

@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/AuthContext"
 import api from "@/lib/api"
 import { loginSchema, type LoginSchema } from "@/lib/schemas/auth"
@@ -49,6 +50,7 @@ const LoginCard = ({
     defaultValues: {
       email: "",
       password: "",
+      remember: false,
     },
   })
 
@@ -64,6 +66,7 @@ const LoginCard = ({
       const res = await api.post("/login", {
         email: safeData.data?.email,
         password: safeData.data?.password,
+        remember: safeData.data?.remember ?? false,
       })
 
       if (res.data.status === "success") {
@@ -135,6 +138,27 @@ const LoginCard = ({
                     <FieldError errors={[fieldState.error]} />
                   )}
                 </Field>
+              )}
+            />
+            <Controller
+              name="remember"
+              control={form.control}
+              render={({ field }) => (
+                <div className="flex w-full items-center justify-between">
+                  <Label
+                    htmlFor={field.name}
+                    className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground"
+                  >
+                    <input
+                      type="checkbox"
+                      id={field.name}
+                      checked={field.value ?? false}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer accent-foreground"
+                    />
+                    Se souvenir de moi
+                  </Label>
+                </div>
               )}
             />
             <Button type="submit" className="w-full">
