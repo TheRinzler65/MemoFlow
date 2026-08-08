@@ -18,6 +18,19 @@ class Cards extends Model implements JsonSerializable
     private string $updated_at;
     private int $deck_id;
 
+    public function __construct(string $newQuestion, string $newAnswer, int $newBox, string $newNext, string $newCreatedAt, string $newUpdatedAt, int $newDeckId, ?string $newLast = null, ?int $newId = null)
+    {
+        $this->id = $newId;
+        $this->setQuestion($newQuestion);
+        $this->setAnswer($newAnswer);
+        $this->setBox($newBox);
+        $this->setNextReview($newNext);
+        $this->setCreatedAt($newCreatedAt);
+        $this->setUpdatedAt($newUpdatedAt);
+        $this->setDeckId($newDeckId);
+        $this->setLastReview($newLast);
+    }
+
     public function jsonSerialize(): array
     {
         return [
@@ -114,5 +127,31 @@ class Cards extends Model implements JsonSerializable
     public function setDeckId(int $newDeckId): void
     {
         $this->deck_id = $newDeckId;
+    }
+
+    public static function findByDeckId(int $id): ?array
+    {
+        $db = self::initDb();
+        $sql = "SELECT * FROM " . static::$table . " WHERE deck_id = :id;";
+        $stmt = $db->prepare($sql);
+
+        $stmt->execute([
+            ':id' => $id
+        ]);
+
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($rows)) {
+            return null;
+        }
+
+        $objects = [];
+        foreach ($rows as $row) {
+            $object = new Cards($row["question"], $row["answer"], (int)$row["box"], $row["next_review"], $row["created_at"], $row["updated_at"], (int)$row["deck_id"], $row["last_review"], (int)$row["id"]);
+
+            $objects[] = $object;
+        }
+
+        return $objects;
     }
 }

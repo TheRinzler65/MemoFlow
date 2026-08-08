@@ -63,7 +63,7 @@ $routesConfig = [
         'middlewares' => ['AuthMiddleware'],
         'routes' => [
             ['GET', '/', 'CardController#index', 'get-all-cards'],
-            ['GET', '/deck/[int:id]', 'CardController#index', 'get-cards-by-deck'],
+            ['GET', '/deck/[int:id]', 'CardController#getByDeckId', 'get-cards-by-deck'],
             ['POST', '/create', 'CardController#create', 'create-card'],
             ['PUT', '/edit/[int:id]', 'CardController#edit', 'edit-card'],
             ['DELETE', '/remove/[int:id]', 'CardController#remove', 'remove-card'],
