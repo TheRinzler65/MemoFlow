@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use Exception;
 use JsonSerializable;
+use Override;
+use PDOException;
 
 class Decks extends Model implements JsonSerializable
 {
@@ -14,12 +17,22 @@ class Decks extends Model implements JsonSerializable
     private string $created_at;
     private int $user_id;
 
+    public function __construct(string $newTitle, string $newCreatedAt, int $newUserId, ?string $newDescription = null, ?int $newId = null)
+    {
+        $this->id = $newId;
+        $this->setTitle($newTitle);
+        $this->setDescription($newDescription);
+        $this->setCreatedAt($newCreatedAt);
+        $this->setUserId($newUserId);
+    }
+
     public function jsonSerialize(): array
     {
         return [
             'id'          => $this->id,
             'title'       => $this->title,
             'description' => $this->description,
+            'created_at'  => $this->created_at,
         ];
     }
 
@@ -66,5 +79,38 @@ class Decks extends Model implements JsonSerializable
     public function setUserId(int $newUserId): void
     {
         $this->user_id = $newUserId;
+    }
+
+    #[Override]
+    public static function findById(int $id): ?Decks
+    {
+        $result =  parent::findById($id);
+
+        if ($result === null) return null;
+
+        $deck = new Decks($result["title"], $result["created_at"], (int)$result["user_id"], $result["description"], (int)$result["id"]);
+        return $deck;
+    }
+
+    public function create(): array
+    {
+        $db = self::initDb();
+        $sql = "INSERT INTO " . static::$table . " (title, description, created_at, user_id) VALUES (:title, :description, :created_at, :user_id);";
+        $stmt = $db->prepare($sql);
+
+        try {
+
+            $stmt->execute([
+                ':title' => $this->title,
+                ':description' => $this->description,
+                ':created_at' => $this->created_at,
+                ':user_id' => $this->user_id,
+            ]);
+
+            return ["status" => "success"];
+        } catch (Exception $e) {
+
+            return ["status" => "error", "message" => "Something went wrong.", "code" => 500];
+        }
     }
 }
