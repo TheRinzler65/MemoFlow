@@ -67,7 +67,7 @@ class DeckController extends Controller
 
             $deck = Decks::findById($id);
 
-            if(!$deck){
+            if (!$deck) {
                 Error::sendError("Deck introuvable.", 404);
             }
 
@@ -75,6 +75,29 @@ class DeckController extends Controller
             $deck->setDescription($inputs["description"]);
 
             $result = $deck->update();
+
+            if ($result["status"] === "error") {
+                Error::sendError($result["message"], $result["code"]);
+                return;
+            }
+
+            Json::send(["status" => "success"], 200);
+        } catch (Exception $e) {
+            Error::sendError($e->getMessage(), $e->getCode());
+        }
+    }
+
+    public function remove(int $id): void
+    {
+        try {
+
+            $deck = Decks::findById($id);
+
+            if (!$deck) {
+                Error::sendError("Deck introuvable.", 404);
+            }
+
+            $result = $deck->delete();
 
             if ($result["status"] === "error") {
                 Error::sendError($result["message"], $result["code"]);

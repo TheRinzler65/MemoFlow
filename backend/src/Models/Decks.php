@@ -116,11 +116,11 @@ class Decks extends Model implements JsonSerializable
 
     public function insert(): array
     {
-        $db = self::initDb();
-        $sql = "INSERT INTO " . static::$table . " (title, description, user_id) VALUES (:title, :description, :user_id);";
-        $stmt = $db->prepare($sql);
-
         try {
+            $db = self::initDb();
+            $sql = "INSERT INTO " . static::$table . " (title, description, user_id) VALUES (:title, :description, :user_id);";
+            $stmt = $db->prepare($sql);
+
 
             $stmt->execute([
                 ':title' => $this->title,
@@ -137,11 +137,11 @@ class Decks extends Model implements JsonSerializable
 
     public function update(): array
     {
-        $db = self::initDb();
-        $sql = "UPDATE " . static::$table . " SET title = :title, description = :description, user_id = :user_id WHERE id = :id;";
-        $stmt = $db->prepare($sql);
-
         try {
+            $db = self::initDb();
+            $sql = "UPDATE " . static::$table . " SET title = :title, description = :description, user_id = :user_id WHERE id = :id;";
+            $stmt = $db->prepare($sql);
+
 
             $stmt->execute([
                 ':title' => $this->title,
@@ -154,6 +154,39 @@ class Decks extends Model implements JsonSerializable
         } catch (Exception $e) {
 
             return ["status" => "error", "message" => "Something went wrong.", "code" => 500];
+        }
+    }
+
+    public function delete(): array
+    {
+        try {
+            $db = self::initDb();
+            $deleteCardsSql = "DELETE FROM cards WHERE deck_id = :id;";
+            $stmt = $db->prepare($deleteCardsSql);
+
+            $result = $stmt->execute([
+                ':id' => $this->id
+            ]);
+
+            if ($result === false) {
+                throw new Exception("Impossible de supprimer les cartes", 500);
+            }
+
+            $deleteDeckSql = "DELETE FROM " . static::$table . " WHERE id = :id;";
+            $stmt = $db->prepare($deleteDeckSql);
+
+            $result = $stmt->execute([
+                ':id' => $this->id
+            ]);
+
+            if ($result === false) {
+                throw new Exception("Impossible de supprimer le deck", 500);
+            }
+
+            return ["status" => "success"];
+        } catch (Exception $e) {
+
+            return ["status" => "error", "message" => $e->getMessage(), "code" => $e->getCode()];
         }
     }
 }
