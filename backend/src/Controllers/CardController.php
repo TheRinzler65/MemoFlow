@@ -66,4 +66,40 @@ class CardController extends Controller
       Error::sendError($e->getMessage(), $e->getCode());
     }
   }
+
+  public function edit(int $id): void
+  {
+    $body = $this->getBody();
+    $rules = [
+      'question' => 'required|min:1',
+      'answer'   => 'required|min:1'
+    ];
+    $inputs = Validator::validate($body, $rules);
+
+    try {
+      $card = Cards::findById($id);
+
+      if (!$card) {
+        Error::sendError("Carte introuvable.", 404);
+      }
+
+      $card->setQuestion($inputs['question']);
+      $card->setAnswer($inputs['answer']);
+      $card->setUpdatedAt(date('Y-m-d H:i:s'));
+
+      $result = $card->update();
+
+      if (isset($result["status"]) && $result["status"] === "error") {
+        Error::sendError($result["message"], $result["code"] ?? 500);
+        return;
+      }
+
+      Json::send([
+        "status" => "success",
+        "message" => "Carte modifiée avec succès"
+      ], 200);
+    } catch (Exception $e) {
+      Error::sendError($e->getMessage(), 500);
+    }
+  }
 }

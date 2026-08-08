@@ -40,13 +40,13 @@ abstract class Model
             ':id' => $id
         ]);
 
-        $result = $stmt->fetch();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($result === false) {
+        if ($row === false) {
             return null;
         }
 
-        return $result;
+        return static::hydrate($row);
     }
 
     protected static function hydrate(array $row): static

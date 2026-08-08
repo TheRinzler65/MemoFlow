@@ -194,4 +194,41 @@ class Cards extends Model implements JsonSerializable
             "code" => 500
         ];
     }
+
+    public function update(): array
+    {
+        $db = self::initDb();
+        $sql = "UPDATE " . static::$table . " 
+                SET question = :question, 
+                    answer = :answer, 
+                    box = :box, 
+                    next_review = :next_review, 
+                    last_review = :last_review, 
+                    updated_at = :updated_at, 
+                    deck_id = :deck_id 
+                WHERE id = :id;";
+        
+        $stmt = $db->prepare($sql);
+        
+        $success = $stmt->execute([
+            ':id'          => $this->id,
+            ':question'    => $this->question,
+            ':answer'      => $this->answer,
+            ':box'         => $this->box,
+            ':next_review' => $this->next_review,
+            ':last_review' => $this->last_review,
+            ':updated_at'  => $this->updated_at,
+            ':deck_id'     => $this->deck_id
+        ]);
+
+        if ($success) {
+            return ["status" => "success"];
+        }
+
+        return [
+            "status" => "error", 
+            "message" => "Erreur lors de la modification de la carte.", 
+            "code" => 500
+        ];
+    }
 }
