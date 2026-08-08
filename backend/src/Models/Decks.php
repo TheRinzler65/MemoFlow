@@ -82,36 +82,15 @@ class Decks extends Model implements JsonSerializable
     }
 
     #[Override]
-    public static function findAll(): array
+    protected static function hydrate(array $row): static
     {
-        $rows = parent::findAll();
-
-        $objects = [];
-
-        foreach ($rows as $row) {
-            $object = new Decks(
-                $row["title"],
-                (int)$row["user_id"],
-                $row["description"],
-                $row["created_at"],
-                (int)$row["id"]
-            );
-
-            $objects[] = $object;
-        }
-
-        return $objects;
-    }
-
-    #[Override]
-    public static function findById(int $id): ?Decks
-    {
-        $result =  parent::findById($id);
-
-        if ($result === null) return null;
-
-        $deck = new Decks($result["title"], (int)$result["user_id"], $result["description"], $result["created_at"], (int)$result["id"]);
-        return $deck;
+        return new self(
+            $row["title"],
+            (int)$row["user_id"],
+            $row["description"],
+            $row["created_at"],
+            (int)$row["id"],
+        );
     }
 
     public function insert(): array
