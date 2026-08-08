@@ -35,4 +35,23 @@ abstract class Model
 
         return $results;
     }
+
+    public static function findById(int $id) : mixed
+    {
+        $db = self::initDb();
+        $sql = "SELECT * FROM " . static::$table . " WHERE id = :id;";
+        $stmt = $db->prepare($sql);
+
+        $stmt->execute([
+            ':id' => $id
+        ]);
+
+        $result = $stmt->fetch();
+
+        if ($result === false) {
+            return null;
+        } 
+
+        return $result;
+    }
 }
