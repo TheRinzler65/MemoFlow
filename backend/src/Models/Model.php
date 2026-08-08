@@ -30,7 +30,13 @@ abstract class Model
         return array_map([static::class, 'hydrate'], $rows);
     }
 
-    public static function findById(int $id): mixed
+    /**
+     * Récupère un enregistrement par son ID
+     * 
+     * @param int $id
+     * @return static|null Retourne l'instance de la classe enfant (ex: Cards) ou null
+     */
+    public static function findById(int $id): ?static
     {
         $db = self::initDb();
         $sql = "SELECT * FROM " . static::$table . " WHERE id = :id;";

@@ -102,4 +102,30 @@ class CardController extends Controller
       Error::sendError($e->getMessage(), 500);
     }
   }
+
+  public function remove(int $id): void
+  {
+    try {
+
+      $card = Cards::findById($id);
+
+      if (!$card) {
+        Error::sendError("Carte introuvable.", 404);
+      }
+
+      $result = $card->delete();
+
+      if (isset($result["status"]) && $result["status"] === "error") {
+        Error::sendError($result["message"], $result["code"] ?? 500);
+        return;
+      }
+
+      Json::send([
+        "status" => "success",
+        "message" => "Carte supprimée avec succès"
+      ], 200);
+    } catch (Exception $e) {
+      Error::sendError($e->getMessage(), 500);
+    }
+  }
 }
