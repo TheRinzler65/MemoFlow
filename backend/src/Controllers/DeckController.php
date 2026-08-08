@@ -41,7 +41,7 @@ class DeckController extends Controller
         $deck = new Decks($inputs["title"], $inputs["user_id"], $inputs["description"]);
 
         try {
-            $result = $deck->create();
+            $result = $deck->insert();
 
             if ($result["status"] === "error") {
                 Error::sendError($result["message"], $result["code"]);
@@ -49,6 +49,39 @@ class DeckController extends Controller
             }
 
             Json::send(["status" => "success"], 201);
+        } catch (Exception $e) {
+            Error::sendError($e->getMessage(), $e->getCode());
+        }
+    }
+
+    public function edit(int $id): void
+    {
+        $body = $this->getBody();
+        $rules = [
+            'title' => 'required',
+            'description' => 'min:10',
+        ];
+        $inputs = Validator::validate($body, $rules);
+
+        try {
+
+            $deck = Decks::findById($id);
+
+            if(!$deck){
+                Error::sendError("Deck introuvable.", 404);
+            }
+
+            $deck->setTitle($inputs["title"]);
+            $deck->setDescription($inputs["description"]);
+
+            $result = $deck->update();
+
+            if ($result["status"] === "error") {
+                Error::sendError($result["message"], $result["code"]);
+                return;
+            }
+
+            Json::send(["status" => "success"], 200);
         } catch (Exception $e) {
             Error::sendError($e->getMessage(), $e->getCode());
         }

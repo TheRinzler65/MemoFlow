@@ -114,7 +114,7 @@ class Decks extends Model implements JsonSerializable
         return $deck;
     }
 
-    public function create(): array
+    public function insert(): array
     {
         $db = self::initDb();
         $sql = "INSERT INTO " . static::$table . " (title, description, user_id) VALUES (:title, :description, :user_id);";
@@ -126,6 +126,28 @@ class Decks extends Model implements JsonSerializable
                 ':title' => $this->title,
                 ':description' => $this->description,
                 ':user_id' => $this->user_id,
+            ]);
+
+            return ["status" => "success"];
+        } catch (Exception $e) {
+
+            return ["status" => "error", "message" => "Something went wrong.", "code" => 500];
+        }
+    }
+
+    public function update(): array
+    {
+        $db = self::initDb();
+        $sql = "UPDATE " . static::$table . " SET title = :title, description = :description, user_id = :user_id WHERE id = :id;";
+        $stmt = $db->prepare($sql);
+
+        try {
+
+            $stmt->execute([
+                ':title' => $this->title,
+                ':description' => $this->description,
+                ':user_id' => $this->user_id,
+                ':id' => $this->id
             ]);
 
             return ["status" => "success"];
