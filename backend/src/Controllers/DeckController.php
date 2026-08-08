@@ -23,13 +23,34 @@ class DeckController extends Controller
 
         if ($deck === null) {
             Error::sendError("Pas de deck trouvé avec cet id", 400);
-        } else{
+        } else {
             Json::send(["status" => "success", "deck" => $deck], 200);
         }
     }
 
-    public static function create(): void
+    public function create(): void
     {
-        
-    } 
+        $body = $this->getBody();
+        $rules = [
+            'title' => 'required',
+            'description' => 'min:10',
+            'user_id' => 'required',
+        ];
+        $inputs = Validator::validate($body, $rules);
+
+        $deck = new Decks($inputs["title"], $inputs["user_id"], $inputs["description"]);
+
+        try {
+            $result = $deck->create();
+
+            if ($result["status"] === "error") {
+                Error::sendError($result["message"], $result["code"]);
+                return;
+            }
+
+            Json::send(["status" => "success"], 201);
+        } catch (Exception $e) {
+            Error::sendError($e->getMessage(), $e->getCode());
+        }
+    }
 }
