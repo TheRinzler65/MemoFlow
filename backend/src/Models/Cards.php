@@ -9,7 +9,7 @@ class Cards extends Model implements JsonSerializable
 {
     protected static string $table = 'cards';
 
-    private int $id;
+    private ?int $id;
     private string $question;
     private string $answer;
     private int $box;
@@ -45,7 +45,7 @@ class Cards extends Model implements JsonSerializable
         ];
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -163,5 +163,35 @@ class Cards extends Model implements JsonSerializable
             $row["last_review"],
             (int)$row["id"]
         );
+    }
+
+    public function insert(): array
+    {
+        $db = self::initDb();
+        $sql = "INSERT INTO " . static::$table . " 
+                (question, answer, box, next_review, created_at, updated_at, deck_id) 
+                VALUES (:question, :answer, :box, :next_review, :created_at, :updated_at, :deck_id);";
+
+        $stmt = $db->prepare($sql);
+        $success = $stmt->execute([
+            ':question'    => $this->question,
+            ':answer'      => $this->answer,
+            ':box'         => $this->box,
+            ':next_review' => $this->next_review,
+            ':created_at'  => $this->created_at,
+            ':updated_at'  => $this->updated_at,
+            ':deck_id'     => $this->deck_id
+        ]);
+
+        if ($success) {
+            $this->id = (int)$db->lastInsertId();
+            return ["status" => "success"];
+        }
+
+        return [
+            "status" => "error",
+            "message" => "Erreur lors de la création de la carte.",
+            "code" => 500
+        ];
     }
 }
