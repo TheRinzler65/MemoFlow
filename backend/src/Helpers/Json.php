@@ -11,4 +11,10 @@ class Json
         echo json_encode($payload, JSON_UNESCAPED_UNICODE);
         exit;
     }
+
+    public static function sendNoContent(): void
+    {
+        http_response_code(204);
+        exit;
+    }
 }
