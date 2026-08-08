@@ -20,23 +20,17 @@ abstract class Model
 
     /**
      * Récupère tous les enregistrements.
-     * 
-     * @return static[] Un tableau d'instances de la classe appelante
      */
     public static function findAll(): array
     {
         $db = self::initDb();
         $stmt = $db->query("SELECT * FROM " . static::$table);
-        $results = $stmt->fetchAll(PDO::FETCH_CLASS, static::class);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if (!$results) {
-            return [];
-        }
-
-        return $results;
+        return array_map([static::class, 'hydrate'], $rows);
     }
 
-    public static function findById(int $id) : mixed
+    public static function findById(int $id): mixed
     {
         $db = self::initDb();
         $sql = "SELECT * FROM " . static::$table . " WHERE id = :id;";
@@ -50,8 +44,17 @@ abstract class Model
 
         if ($result === false) {
             return null;
-        } 
+        }
 
         return $result;
+    }
+
+    protected static function hydrate(array $row): static
+    {
+        $obj = new static();
+        foreach ($row as $key => $value) {
+            $obj->$key = $value;
+        }
+        return $obj;
     }
 }

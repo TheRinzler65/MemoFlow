@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use JsonSerializable;
+use Override;
 
 class Cards extends Model implements JsonSerializable
 {
@@ -145,13 +146,22 @@ class Cards extends Model implements JsonSerializable
             return null;
         }
 
-        $objects = [];
-        foreach ($rows as $row) {
-            $object = new Cards($row["question"], $row["answer"], (int)$row["box"], $row["next_review"], $row["created_at"], $row["updated_at"], (int)$row["deck_id"], $row["last_review"], (int)$row["id"]);
+        return array_map([static::class, 'hydrate'], $rows);
+    }
 
-            $objects[] = $object;
-        }
-
-        return $objects;
+    #[Override]
+    protected static function hydrate(array $row): static
+    {
+        return new self(
+            $row["question"],
+            $row["answer"],
+            (int)$row["box"],
+            $row["next_review"],
+            $row["created_at"],
+            $row["updated_at"],
+            (int)$row["deck_id"],
+            $row["last_review"],
+            (int)$row["id"]
+        );
     }
 }

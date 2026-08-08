@@ -20,7 +20,7 @@ class CardController extends Controller
     $cards = Cards::findByDeckId($id);
 
     if (!$cards) {
-      Error::sendError("Aucune carte trouvé dans ce jeu.", 400);
+      Error::sendError("Aucune carte trouvée dans ce jeu.", 400);
     }
 
     Json::send(["status" => "success", "cards" => $cards], 200);
