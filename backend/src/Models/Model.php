@@ -20,16 +20,14 @@ abstract class Model
 
     /**
      * Récupère tous les enregistrements.
-     * 
-     * @return static[] Un tableau d'instances de la classe appelante
      */
     public static function findAll(): array
     {
         $db = self::initDb();
         $stmt = $db->query("SELECT * FROM " . static::$table);
-        $results = $stmt->fetchAll(PDO::FETCH_CLASS, static::class);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if (!$results) {
+        if (empty($results)) {
             return [];
         }
 

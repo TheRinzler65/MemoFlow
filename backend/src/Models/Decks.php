@@ -2,17 +2,29 @@
 
 namespace App\Models;
 
+use Exception;
 use JsonSerializable;
+use Override;
+use PDOException;
 
 class Decks extends Model implements JsonSerializable
 {
     protected static string $table = 'decks';
 
-    private int $id;
+    private ?int $id;
     private string $title;
     private ?string $description;
-    private string $created_at;
+    private ?string $created_at;
     private int $user_id;
+
+    public function __construct(string $newTitle, int $newUserId, ?string $newDescription = null, ?string $newCreatedAt = null, ?int $newId = null)
+    {
+        $this->id = $newId;
+        $this->setTitle($newTitle);
+        $this->setDescription($newDescription);
+        $this->setCreatedAt($newCreatedAt);
+        $this->setUserId($newUserId);
+    }
 
     public function jsonSerialize(): array
     {
@@ -20,10 +32,11 @@ class Decks extends Model implements JsonSerializable
             'id'          => $this->id,
             'title'       => $this->title,
             'description' => $this->description,
+            'created_at'  => $this->created_at,
         ];
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -38,7 +51,7 @@ class Decks extends Model implements JsonSerializable
         return $this->description;
     }
 
-    public function getCreatedAt(): string
+    public function getCreatedAt(): ?string
     {
         return $this->created_at;
     }
@@ -58,7 +71,7 @@ class Decks extends Model implements JsonSerializable
         $this->description = $newDescription;
     }
 
-    public function setCreatedAt(string $newCreatedAt): void
+    public function setCreatedAt(?string $newCreatedAt): void
     {
         $this->created_at = $newCreatedAt;
     }
@@ -66,5 +79,114 @@ class Decks extends Model implements JsonSerializable
     public function setUserId(int $newUserId): void
     {
         $this->user_id = $newUserId;
+    }
+
+    #[Override]
+    public static function findAll(): array
+    {
+        $rows = parent::findAll();
+
+        $objects = [];
+
+        foreach ($rows as $row) {
+            $object = new Decks(
+                $row["title"],
+                (int)$row["user_id"],
+                $row["description"],
+                $row["created_at"],
+                (int)$row["id"]
+            );
+
+            $objects[] = $object;
+        }
+
+        return $objects;
+    }
+
+    #[Override]
+    public static function findById(int $id): ?Decks
+    {
+        $result =  parent::findById($id);
+
+        if ($result === null) return null;
+
+        $deck = new Decks($result["title"], (int)$result["user_id"], $result["description"], $result["created_at"], (int)$result["id"]);
+        return $deck;
+    }
+
+    public function insert(): array
+    {
+        try {
+            $db = self::initDb();
+            $sql = "INSERT INTO " . static::$table . " (title, description, user_id) VALUES (:title, :description, :user_id);";
+            $stmt = $db->prepare($sql);
+
+
+            $stmt->execute([
+                ':title' => $this->title,
+                ':description' => $this->description,
+                ':user_id' => $this->user_id,
+            ]);
+
+            return ["status" => "success"];
+        } catch (Exception $e) {
+
+            return ["status" => "error", "message" => "Something went wrong.", "code" => 500];
+        }
+    }
+
+    public function update(): array
+    {
+        try {
+            $db = self::initDb();
+            $sql = "UPDATE " . static::$table . " SET title = :title, description = :description, user_id = :user_id WHERE id = :id;";
+            $stmt = $db->prepare($sql);
+
+
+            $stmt->execute([
+                ':title' => $this->title,
+                ':description' => $this->description,
+                ':user_id' => $this->user_id,
+                ':id' => $this->id
+            ]);
+
+            return ["status" => "success"];
+        } catch (Exception $e) {
+
+            return ["status" => "error", "message" => "Something went wrong.", "code" => 500];
+        }
+    }
+
+    public function delete(): array
+    {
+        try {
+            $db = self::initDb();
+            $deleteCardsSql = "DELETE FROM cards WHERE deck_id = :id;";
+            $stmt = $db->prepare($deleteCardsSql);
+
+            $result = $stmt->execute([
+                ':id' => $this->id
+            ]);
+
+            if ($result === false) {
+                throw new Exception("Impossible de supprimer les cartes", 500);
+            }
+
+            $deleteDeckSql = "DELETE FROM " . static::$table . " WHERE id = :id;";
+            $stmt = $db->prepare($deleteDeckSql);
+
+            $result = $stmt->execute([
+                ':id' => $this->id
+            ]);
+
+            if ($result === false) {
+                throw new Exception("Impossible de supprimer le deck", 500);
+            }
+
+            return ["status" => "success"];
+        } catch (Exception $e) {
+
+            return ["status" => "error", "message" => $e->getMessage(), "code" => $e->getCode()];
+        }
     }
 }
