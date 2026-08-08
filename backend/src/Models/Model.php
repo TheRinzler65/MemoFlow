@@ -25,16 +25,18 @@ abstract class Model
     {
         $db = self::initDb();
         $stmt = $db->query("SELECT * FROM " . static::$table);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if (empty($results)) {
-            return [];
-        }
-
-        return $results;
+        return array_map([static::class, 'hydrate'], $rows);
     }
 
-    public static function findById(int $id) : mixed
+    /**
+     * Récupère un enregistrement par son ID
+     * 
+     * @param int $id
+     * @return static|null Retourne l'instance de la classe enfant (ex: Cards) ou null
+     */
+    public static function findById(int $id): ?static
     {
         $db = self::initDb();
         $sql = "SELECT * FROM " . static::$table . " WHERE id = :id;";
@@ -44,12 +46,21 @@ abstract class Model
             ':id' => $id
         ]);
 
-        $result = $stmt->fetch();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($result === false) {
+        if ($row === false) {
             return null;
-        } 
+        }
 
-        return $result;
+        return static::hydrate($row);
+    }
+
+    protected static function hydrate(array $row): static
+    {
+        $obj = new static();
+        foreach ($row as $key => $value) {
+            $obj->$key = $value;
+        }
+        return $obj;
     }
 }

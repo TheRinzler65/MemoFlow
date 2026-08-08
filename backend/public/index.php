@@ -51,10 +51,10 @@ $routesConfig = [
         'middlewares' => ['AuthMiddleware'],
         'routes' => [
             ['GET', '/', 'DeckController#index', 'get-all-decks'],
-            ['GET', '/show/[int:id]', 'DeckController#show', 'get-one-deck'],
+            ['GET', '/show/[i:id]', 'DeckController#show', 'get-one-deck'],
             ['POST', '/create', 'DeckController#create', 'create-deck'],
-            ['PUT', '/edit/[int:id]', 'DeckController#edit', 'edit-deck'],
-            ['DELETE', '/remove/[int:id]', 'DeckController#remove', 'remove-deck'],
+            ['PUT', '/edit/[i:id]', 'DeckController#edit', 'edit-deck'],
+            ['DELETE', '/remove/[i:id]', 'DeckController#remove', 'remove-deck'],
         ]
     ],
     // AUTH CARD
@@ -63,10 +63,10 @@ $routesConfig = [
         'middlewares' => ['AuthMiddleware'],
         'routes' => [
             ['GET', '/', 'CardController#index', 'get-all-cards'],
-            ['GET', '/deck/[int:id]', 'CardController#index', 'get-cards-by-deck'],
+            ['GET', '/deck/[i:id]', 'CardController#getByDeckId', 'get-cards-by-deck'],
             ['POST', '/create', 'CardController#create', 'create-card'],
-            ['PUT', '/edit/[int:id]', 'CardController#edit', 'edit-card'],
-            ['DELETE', '/remove/[int:id]', 'CardController#remove', 'remove-card'],
+            ['PUT', '/edit/[i:id]', 'CardController#edit', 'edit-card'],
+            ['DELETE', '/remove/[i:id]', 'CardController#remove', 'remove-card'],
         ]
     ],
     // AUTH REVIEW
@@ -75,7 +75,7 @@ $routesConfig = [
         'middlewares' => ['AuthMiddleware'],
         'routes' => [
             ['GET', '/today', 'ReviewController#today', 'get-today-reviews'],
-            ['POST', '/[int:id]', 'ReviewController#review', 'submit-review'],
+            ['POST', '/[i:id]', 'ReviewController#review', 'submit-review'],
         ]
     ],
     // ADMIN
@@ -84,8 +84,8 @@ $routesConfig = [
         'middlewares' => ['AuthMiddleware', 'AdminMiddleware'],
         'routes' => [
             ['GET', '/', 'UserController#index', 'get-all-users'],
-            ['GET', '/show[int:id]', 'UserController#show', 'get-one-user'],
-            ['PUT', '/edit[int:id]', 'UserController#edit', 'edit-user'],
+            ['GET', '/show[i:id]', 'UserController#show', 'get-one-user'],
+            ['PUT', '/edit[i:id]', 'UserController#edit', 'edit-user'],
         ]
     ]
 ];
