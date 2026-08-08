@@ -60,7 +60,7 @@ $routesConfig = [
     // AUTH CARD
     [
         'prefix' => '/cards',
-        'middlewares' => [], // TODO : AuthMiddleware
+        'middlewares' => ['AuthMiddleware'],
         'routes' => [
             ['GET', '/', 'CardController#index', 'get-all-cards'],
             ['GET', '/deck/[i:id]', 'CardController#getByDeckId', 'get-cards-by-deck'],
