@@ -120,10 +120,7 @@ class CardController extends Controller
         return;
       }
 
-      Json::send([
-        "status" => "success",
-        "message" => "Carte supprimée avec succès"
-      ], 200);
+      Json::sendNoContent();
     } catch (Exception $e) {
       Error::sendError($e->getMessage(), 500);
     }
