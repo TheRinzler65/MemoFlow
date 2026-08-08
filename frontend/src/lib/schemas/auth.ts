@@ -7,12 +7,14 @@ export const loginSchema = z.object({
   password: z
     .string()
     .min(6, "Le mot de passe doit contenir au moins 6 caractères."),
+  remember: z.boolean().optional(),
 })
 
 export type LoginSchema = z.infer<typeof loginSchema>
 
 export const registerSchema = z
   .object({
+    name: z.string().min(3, "Le nom doit contenir au moins 3 caractères."),
     email: z
       .email("Veuillez saisir une adresse email valide.")
       .min(1, "L'email est requis."),

@@ -2,15 +2,16 @@
 
 namespace App\Helpers;
 
+use App\Helpers\Error;
+
 class Validator
 {
   /**
    * Valide un tableau de données selon des règles spécifiques
    * @param array $data Les données à valider (ex: $_POST)
    * @param array $rules Les règles à appliquer (ex: ['email' => 'required|email'])
-   * @param string $redirectUrl L'URL de redirection en cas d'échec
    */
-  public static function validate(array $data, array $rules, string $redirectUrl): array
+  public static function validate(array $data, array $rules): array
   {
     $errors = [];
     $validatedData = [];
@@ -29,7 +30,7 @@ class Validator
         }
 
         if ($rule === 'required' && empty($value)) {
-          $errors[] = "The field '$field' is required.";
+          $errors[] = "Le champ '$field' est obligatoire.";
           break;
         }
 
@@ -38,33 +39,28 @@ class Validator
         }
 
         if ($rule === 'email' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-          $errors[] = "The field '$field' must be a valid email address.";
+          $errors[] = "Le champ '$field' doit être une adresse e-mail valide.";
         }
 
         if ($rule === 'min' && \strlen($value) < (int)$ruleParam) {
-          $errors[] = "The field '$field' must be at least $ruleParam characters.";
+          $errors[] = "Le champ '$field' doit contenir au moins $ruleParam caractères.";
         }
 
         if ($rule === 'matches') {
           $compareValue = isset($data[$ruleParam]) ? trim(htmlentities($data[$ruleParam])) : '';
           if ($value !== $compareValue) {
-            $errors[] = "The field '$field' must match the field '$ruleParam'.";
+            $errors[] = "Le champ '$field' doit correspondre au champ '$ruleParam'.";
           }
         }
 
-        // --- Nouvelle règle ajoutée ici ---
         if ($rule === 'starts_with' && !str_starts_with($value, $ruleParam)) {
-          $errors[] = "The field '$field' must start with '$ruleParam'.";
+          $errors[] = "Le champ '$field' doit commencer par '$ruleParam'.";
         }
       }
     }
 
     if (!empty($errors)) {
-      $_SESSION['errors'] = $errors;
-      $_SESSION['old'] = $data;
-
-      header("Location: $redirectUrl"); // Changer
-      exit;
+      Error::sendErrors($errors, 400);
     }
 
     return $validatedData;

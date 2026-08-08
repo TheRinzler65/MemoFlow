@@ -2,14 +2,15 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useAuth } from "@/contexts/AuthContext"
+import api from "@/lib/api"
 import { loginSchema, type LoginSchema } from "@/lib/schemas/auth"
 import { cn } from "@/lib/utils"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
 interface LoginProps {
   heading?: string
@@ -41,16 +42,41 @@ const LoginCard = ({
   signupUrlText = "S'inscrire",
   className,
 }: LoginProps) => {
+  const navigate = useNavigate()
+  const { login } = useAuth()
+
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
+      remember: false,
     },
   })
 
-  function onSubmit(data: LoginSchema) {
-    console.log(data)
+  async function onSubmit(data: LoginSchema) {
+    const safeData = loginSchema.safeParse(data)
+
+    if (!safeData.success) {
+      console.log("Erreur")
+      return;
+    }
+
+    try {
+      const res = await api.post("/login", {
+        email: safeData.data?.email,
+        password: safeData.data?.password,
+        remember: safeData.data?.remember ?? false,
+      })
+
+      if (res.data.status === "success") {
+        login(res.data.user)
+        toast.success("Vous êtes connecté !")
+        navigate("/dashboard", { replace: true })
+      }
+    } catch (error) {
+      toast.error("Something went wrong.")
+    }
   }
 
   return (
@@ -114,16 +140,34 @@ const LoginCard = ({
                 </Field>
               )}
             />
+            <Controller
+              name="remember"
+              control={form.control}
+              render={({ field }) => (
+                <div className="flex w-full items-center justify-between">
+                  <Label
+                    htmlFor={field.name}
+                    className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground"
+                  >
+                    <input
+                      type="checkbox"
+                      id={field.name}
+                      checked={field.value ?? false}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer accent-foreground"
+                    />
+                    Se souvenir de moi
+                  </Label>
+                </div>
+              )}
+            />
             <Button type="submit" className="w-full">
               {buttonText}
             </Button>
           </form>
-          <div className="flex justify-center gap-1 text-sm text-muted-foreground">
+          <div className="flex justify-center gap-1 text-sm">
             <p>{signupText}</p>
-            <a
-              href={signupUrl}
-              className="font-medium text-primary hover:underline"
-            >
+            <a href={signupUrl} className="font-medium hover:underline">
               {signupUrlText}
             </a>
           </div>
