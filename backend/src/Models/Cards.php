@@ -264,4 +264,24 @@ class Cards extends Model implements JsonSerializable
             "code" => 500
         ];
     }
+
+    public static function findCardByDay(): ?array
+    {
+        $user_id = $_SESSION['user']["id"];
+        $db = self::initDb();
+        $findCardByDaySql = "SELECT c.*, d.user_id FROM cards c INNER JOIN decks d ON c.deck_id = d.id WHERE c.next_review <= CURDATE() AND d.user_id = :user_id;";
+        $stmt = $db->prepare($findCardByDaySql);
+
+        $stmt->execute([
+            ":user_id"=>$user_id
+        ]);
+
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($rows)) {
+            return null;
+        }
+
+        return array_map([static::class, 'hydrate'], $rows);
+    }
 }
