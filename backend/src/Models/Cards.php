@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use JsonSerializable;
 use Override;
 
@@ -235,9 +236,19 @@ class Cards extends Model implements JsonSerializable
     public function delete(): array
     {
         $db = self::initDb();
-        $sql = "DELETE FROM " . static::$table . " WHERE id = :id;";
+        $deleteReviewsSql = "DELETE FROM reviews WHERE card_id = :id;";
+        $stmt = $db->prepare($deleteReviewsSql);
 
-        $stmt = $db->prepare($sql);
+        $success = $stmt->execute([
+            ':id' => $this->id
+        ]);
+
+        if ($success === false) {
+            throw new Exception("Impossible de supprimer les reviews", 500);
+        }
+
+        $deleteCardSql = "DELETE FROM " . static::$table . " WHERE id = :id;";
+        $stmt = $db->prepare($deleteCardSql);
 
         $success = $stmt->execute([
             ':id' => $this->id
