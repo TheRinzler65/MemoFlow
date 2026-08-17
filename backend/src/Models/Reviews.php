@@ -117,11 +117,11 @@ class Reviews extends Model implements JsonSerializable
     protected static function hydrate(array $row): static
     {
         return new self(
-            $row["reviewed_at"],
             $row["success"],
             $row["previous_box"],
             $row["new_box"],
             (int)$row["card_id"],
+            $row["reviewed_at"],
             (int)$row["id"]
         );
     }
@@ -162,18 +162,18 @@ class Reviews extends Model implements JsonSerializable
             $stmt = $db->prepare($sql);
 
             $stmt->execute([
-                ':id'           => $this->id,
-                ':reviewed_at'  => $this->reviewed_at,
-                ':success,'     => $this->success,
+                ':reviewed_at'  => date("Y-m-d H:i:s"),
+                ':success'      => (int)$this->success,
                 ':previous_box' => $this->previous_box,
                 ':new_box'      => $this->new_box,
-                ':card_id'      => $this->card_id
+                ':card_id'      => $this->card_id,
+                ':id'           => $this->id,
             ]);
 
             return ["status" => "success"];
         } catch (Exception $e) {
 
-            return ["status" => "error", "message" => "Something went wrong.", "code" => 500];
+            return ["status" => "error", "message" => $e->getMessage(), "code" => 500];
         }
     }
 

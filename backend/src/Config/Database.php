@@ -29,11 +29,12 @@ class Database
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false
         ];
-
         try {
             $this->connection = new PDO($dsn, $user, $pass, $options);
+
+            $this->connection->exec("SET time_zone = '+02:00'");
         } catch (PDOException $e) {
-            Error::sendError($e->getMessage(), $e->getCode());
+            Error::sendError($e->getMessage(), 500);
         }
     }
 

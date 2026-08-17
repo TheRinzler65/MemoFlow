@@ -9,6 +9,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . "/../");
 $dotenv->safeLoad();
 
+date_default_timezone_set('Europe/Paris');
+
 ini_set('session.gc_maxlifetime', Session::TTL_REMEMBER);
 
 session_set_cookie_params([
@@ -74,8 +76,11 @@ $routesConfig = [
         'prefix' => '/reviews',
         'middlewares' => ['AuthMiddleware'],
         'routes' => [
+            ['GET', '/', 'ReviewsController#index', 'get-all-reviews'],
             ['GET', '/today', 'ReviewController#today', 'get-today-reviews'],
+            ['GET', '/stats', 'ReviewController#stats', 'get-review-stats'],
             ['POST', '/[i:id]', 'ReviewController#review', 'submit-review'],
+            ['DELETE', '/remove/[i:id]', 'ReviewController#remove', 'remove-review'],
         ]
     ],
     // ADMIN
