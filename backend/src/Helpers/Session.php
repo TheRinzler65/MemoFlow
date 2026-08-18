@@ -6,8 +6,8 @@ class Session
 {
     // Durées de vie de session (en secondes).
     // TEST : 2 min / 10 min — PROD : remplacer par 7 * 86400 et 30 * 86400
-    public const TTL = 120;
-    public const TTL_REMEMBER = 600;
+    public const TTL = 7 * 86400;
+    public const TTL_REMEMBER = 30 * 86400;
 
     public static function isExpired(): bool
     {

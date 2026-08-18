@@ -74,7 +74,7 @@ const LoginCard = ({
         toast.success("Vous êtes connecté !")
         navigate("/dashboard", { replace: true })
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong.")
     }
   }
