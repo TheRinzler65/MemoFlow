@@ -7,7 +7,6 @@ use App\Helpers\Json;
 use App\Helpers\Validator;
 use App\Models\Decks;
 use Exception;
-use JsonException;
 
 class DeckController extends Controller
 {

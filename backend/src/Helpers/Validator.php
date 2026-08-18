@@ -17,8 +17,14 @@ class Validator
     $validatedData = [];
 
     foreach ($rules as $field => $fieldRules) {
-      $value = isset($data[$field]) ? trim(htmlentities($data[$field])) : '';
+      $rawValue = $data[$field] ?? '';
 
+      if (is_bool($rawValue)) {
+        $value = $rawValue ? '1' : '0';
+      } else {
+        $value = is_string($rawValue) ? trim(htmlentities($rawValue)) : $rawValue;
+      }
+      
       $validatedData[$field] = $value;
 
       $rulesArray = explode('|', $fieldRules);
@@ -55,6 +61,12 @@ class Validator
 
         if ($rule === 'starts_with' && !str_starts_with($value, $ruleParam)) {
           $errors[] = "Le champ '$field' doit commencer par '$ruleParam'.";
+        }
+
+        if ($rule === 'boolean') {
+          if (filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === null) {
+            $errors[] = "Le champ '$field' doit être un booléen (vrai ou faux).";
+          }
         }
       }
     }

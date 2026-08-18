@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use JsonSerializable;
 use Override;
 
@@ -217,7 +218,7 @@ class Cards extends Model implements JsonSerializable
             ':box'         => $this->box,
             ':next_review' => $this->next_review,
             ':last_review' => $this->last_review,
-            ':updated_at'  => $this->updated_at,
+            ':updated_at'  => date("Y-m-d H:i:s"),
             ':deck_id'     => $this->deck_id
         ]);
 
@@ -235,9 +236,19 @@ class Cards extends Model implements JsonSerializable
     public function delete(): array
     {
         $db = self::initDb();
-        $sql = "DELETE FROM " . static::$table . " WHERE id = :id;";
+        $deleteReviewsSql = "DELETE FROM reviews WHERE card_id = :id;";
+        $stmt = $db->prepare($deleteReviewsSql);
 
-        $stmt = $db->prepare($sql);
+        $success = $stmt->execute([
+            ':id' => $this->id
+        ]);
+
+        if ($success === false) {
+            throw new Exception("Impossible de supprimer les reviews", 500);
+        }
+
+        $deleteCardSql = "DELETE FROM " . static::$table . " WHERE id = :id;";
+        $stmt = $db->prepare($deleteCardSql);
 
         $success = $stmt->execute([
             ':id' => $this->id
@@ -252,5 +263,25 @@ class Cards extends Model implements JsonSerializable
             "message" => "Erreur lors de la suppression de la carte.",
             "code" => 500
         ];
+    }
+
+    public static function findCardByDay(): ?array
+    {
+        $user_id = $_SESSION['user']["id"];
+        $db = self::initDb();
+        $findCardByDaySql = "SELECT c.*, d.user_id FROM cards c INNER JOIN decks d ON c.deck_id = d.id WHERE c.next_review <= CURDATE() AND d.user_id = :user_id;";
+        $stmt = $db->prepare($findCardByDaySql);
+
+        $stmt->execute([
+            ":user_id"=>$user_id
+        ]);
+
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($rows)) {
+            return null;
+        }
+
+        return array_map([static::class, 'hydrate'], $rows);
     }
 }
