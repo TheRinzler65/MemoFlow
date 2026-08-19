@@ -73,11 +73,7 @@ export const CreateDeck = () => {
           </CardTitle>
         </CardHeader>
 
-        {error && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 rounded-lg border">{error}</div>}
         <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
           <CardContent className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">

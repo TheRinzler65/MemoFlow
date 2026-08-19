@@ -42,6 +42,8 @@ class Cards extends Model implements JsonSerializable
             'box'         => $this->box,
             'next_review' => $this->next_review,
             'last_review' => $this->last_review,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'deck_id'     => $this->deck_id,
         ];
     }

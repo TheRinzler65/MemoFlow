@@ -68,8 +68,8 @@ export const HomeCards = () => {
               <p>Boîte n°= {card.box}</p>
               <p>Date prochaine revu : {card.next_review}</p>
               <p>Date dernière revu : {card.last_review}</p>
-              <p>Crée le :{card.created_at}</p>
-              <p>Mis à jour le :{card.updated_at}</p>
+              <p>Crée le : {card.created_at}</p>
+              <p>Mis à jour le : {card.updated_at}</p>
               <p>ID : {card.id}</p>
               <Link to={`/cards/edit/${card.id}`}>Modifier</Link>
               <button onClick={() => removeCard(card.id)}>Supprimer</button>
