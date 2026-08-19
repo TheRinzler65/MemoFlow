@@ -1,4 +1,5 @@
 import api from "@/lib/api"
+import he from "he"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
@@ -64,8 +65,10 @@ export const HomeDecks = () => {
         <ul>
           {decks.map((deck) => (
             <li key={deck.id}>
-              <h1>Titre : {deck.title}</h1>
-              <p>Description : {deck.description}</p>
+              <h1>Titre : {he.decode(deck.title)}</h1>
+              {deck.description && (
+                <p>Description : {he.decode(deck.description)}</p>
+              )}
               <p>Crée le :{deck.created_at}</p>
               <p>ID : {deck.id}</p>
               <Link to={`/decks/${deck.id}`}>Voir</Link>
