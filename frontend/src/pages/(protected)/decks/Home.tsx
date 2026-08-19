@@ -1,18 +1,15 @@
+import { DeckTable } from "@/components/decks/DeckTable"
+import { buttonVariants } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import api from "@/lib/api"
-import he from "he"
+import type { Deck } from "@/types/Deck"
+import { LayoutGrid, LayoutList } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-interface Decks {
-  id: number
-  title: string
-  description: string
-  created_at: string
-}
-
 export const HomeDecks = () => {
-  const [decks, setDecks] = useState<Decks[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [decks, setDecks] = useState<Deck[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<null | string>(null)
 
   useEffect(() => {
@@ -55,29 +52,31 @@ export const HomeDecks = () => {
   }
 
   return (
-    <div>
-      <Link to="/decks/create">Créer un deck</Link>
+    <div className="h-screen">
+      <Link to="/decks/create" className={buttonVariants()}>
+        Créer un deck
+      </Link>
       {loading ? (
         "Chargement..."
       ) : error ? (
         error
       ) : (
-        <ul>
-          {decks.map((deck) => (
-            <li key={deck.id}>
-              <h1>Titre : {he.decode(deck.title)}</h1>
-              {deck.description && (
-                <p>Description : {he.decode(deck.description)}</p>
-              )}
-              <p>Crée le :{deck.created_at}</p>
-              <p>ID : {deck.id}</p>
-              <Link to={`/decks/${deck.id}`}>Voir</Link>
-              <Link to={`/decks/edit/${deck.id}`}>Modifier</Link>
-              <button onClick={() => removeDeck(deck.id)}>Supprimer</button>
-              <hr />
-            </li>
-          ))}
-        </ul>
+        <Tabs defaultValue="overview" className="h-full">
+          <TabsList>
+            <TabsTrigger value="list">
+              <LayoutList />
+            </TabsTrigger>
+            <TabsTrigger value="grid">
+              <LayoutGrid />
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="list">
+            <div className="flex h-full w-full items-center justify-center">
+              <DeckTable decks={decks} removeDeck={removeDeck}/>
+            </div>
+          </TabsContent>
+          <TabsContent value="grid">grid</TabsContent>
+        </Tabs>
       )}
     </div>
   )
