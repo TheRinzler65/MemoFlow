@@ -6,6 +6,13 @@ import { Login } from "./pages/(public)/Login"
 import { Register } from "./pages/(public)/Register"
 import { HomeDecks } from "./pages/(protected)/decks/Home"
 import { ShowDeck } from "./pages/(protected)/decks/Show"
+import { CreateDeck } from "./pages/(protected)/decks/Create"
+import { EditDeck } from "./pages/(protected)/decks/Edit"
+import { HomeCards } from "./pages/(protected)/cards/Home"
+import { ShowCard } from "./pages/(protected)/cards/Deck"
+import { CreateCard } from "./pages/(protected)/cards/Create"
+import { EditCard } from "./pages/(protected)/cards/Edit"
+import { HomeReview } from "./pages/(protected)/reviews/Home"
 
 export function App() {
   return (
@@ -36,6 +43,62 @@ export function App() {
           element={
             <ProtectedRoute>
               <ShowDeck />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/decks/create"
+          element={
+            <ProtectedRoute>
+              <CreateDeck />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/decks/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditDeck />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cards"
+          element={
+            <ProtectedRoute>
+              <HomeCards />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cards/create"
+          element={
+            <ProtectedRoute>
+              <CreateCard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cards/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditCard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cards/:id"
+          element={
+            <ProtectedRoute>
+              <ShowCard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reviews"
+          element={
+            <ProtectedRoute>
+              <HomeReview />
             </ProtectedRoute>
           }
         />

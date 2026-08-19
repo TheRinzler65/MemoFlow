@@ -1,5 +1,6 @@
 import api from "@/lib/api"
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 
 interface Decks {
   id: number
@@ -34,8 +35,27 @@ export const HomeDecks = () => {
     getDecks()
   }, [])
 
+  const removeDeck = async (id: number) => {
+    if (!confirm("Supprimer ce deck ?")) {
+      return
+    }
+
+    try {
+      const response = await api.delete(`/decks/remove/${id}`)
+      if (response.data.status === "success") {
+        setDecks(decks.filter((deck) => deck.id !== id))
+      } else {
+        setError("Erreur")
+      }
+    } catch (error) {
+      setError("Erreur lors de la suppression du deck")
+      console.error("Erreur lors de la suppression du deck", error)
+    }
+  }
+
   return (
     <div>
+      <Link to="/decks/create">Créer un deck</Link>
       {loading ? (
         "Chargement..."
       ) : error ? (
@@ -48,6 +68,10 @@ export const HomeDecks = () => {
               <p>Description : {deck.description}</p>
               <p>Crée le :{deck.created_at}</p>
               <p>ID : {deck.id}</p>
+              <Link to={`/decks/${deck.id}`}>Voir</Link>
+              <Link to={`/decks/edit/${deck.id}`}>Modifier</Link>
+              <button onClick={() => removeDeck(deck.id)}>Supprimer</button>
+              <hr />
             </li>
           ))}
         </ul>
