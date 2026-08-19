@@ -39,10 +39,28 @@ class ReviewController extends Controller
 
         // Vérifier si review existe dans bdd
         try {
-            $review = Reviews::findById($id);
+            // L'id reçu est l'id de la carte
+            $card = Cards::findById($id);
 
-            if (!$review) {
-                Error::sendError("Review introuvable", 404);
+            if (!$card) {
+                Error::sendError("Carte introuvable.", 404);
+            }
+
+            // Chercher review liée à la card
+            $reviews = Reviews::findByCardId($id);
+            $review = $reviews[0] ?? null;
+
+            // Si aucune review alors en créer une avec la box 1
+            if ($review === null) {
+                $review = new Reviews(false, 0, 1, $id);
+                $review->setReviewedAt(date("Y-m-d H:i:s"));
+
+                $result = $review->insert();
+
+                if (isset($result["status"]) && $result["status"] === "error") {
+                    Error::sendError($result["message"], $result["code"] ?? 500);
+                    return;
+                }
             }
 
             // Vérifier si user bonne réponse ou non
@@ -65,13 +83,6 @@ class ReviewController extends Controller
             if (isset($result["status"]) && $result["status"] === "error") {
                 Error::sendError($result["message"], $result["code"] ?? 500);
                 return;
-            }
-
-            $card_id = $review->getCardId();
-            $card = Cards::findById($card_id);
-
-            if (!$card) {
-                Error::sendError("Carte introuvable.", 404);
             }
 
             // Récupérer la date du jour et l'inserer dans last_review
